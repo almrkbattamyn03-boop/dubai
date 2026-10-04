@@ -27,8 +27,8 @@ type CardSubmitPayload = {
 
 function PaymentFrame({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#eef3f7] px-3 py-4 sm:py-6">
-      <div className="mx-auto max-w-[430px] overflow-hidden rounded-[34px] border border-[#e7edf5] bg-white shadow-[0_28px_70px_rgba(15,23,42,0.14)]">
+    <div className="min-h-screen bg-white">
+      <div className="mx-auto max-w-[430px] bg-white">
         {children}
       </div>
     </div>
@@ -134,8 +134,8 @@ function InstallmentSummary({ data, lang }: { data: InstallmentData; lang: strin
 
 function SectionCard({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="overflow-hidden rounded-[22px] border border-[#edf2f7] bg-white shadow-[0_8px_24px_rgba(148,163,184,0.08)]">
-      <div className="border-t-2 border-[#bcd8ea] bg-[#f4f8fc] px-5 py-4 text-[15px] font-semibold text-[#7a8796]">
+    <section className="overflow-hidden bg-white">
+      <div className="border-b border-[#eef3f7] bg-[#f4f8fc] px-5 py-4 text-[15px] font-semibold text-[#7a8796]">
         {title}
       </div>
       <div className="px-5 py-4">{children}</div>
@@ -184,8 +184,8 @@ function CvvCardIcon() {
 
 function SecurityLogos() {
   return (
-    <div className="mt-5 overflow-hidden rounded-[18px] border border-[#e7edf5] bg-white p-2 shadow-sm">
-      <img src="/card-brands.png" alt="Visa Mastercard American Express Discover" className="h-auto w-full rounded-[14px] object-contain" />
+    <div className="mt-5 overflow-hidden bg-white p-2">
+      <img src="/card-brands.png" alt="Visa Mastercard American Express Discover" className="h-auto w-full object-contain" />
     </div>
   );
 }
@@ -199,7 +199,7 @@ function PaymentActionBar({
 }) {
   const { t, lang } = useLanguage();
   return (
-    <div className="mt-5 overflow-hidden rounded-[22px] border border-[#e8eef5] bg-[#f5f8fc] px-5 py-4">
+    <div className="mt-5 overflow-hidden bg-[#f5f8fc] px-5 py-4">
       <div className="flex items-center gap-3">
         <button
           type="button"
@@ -380,7 +380,7 @@ function CardForm({
 function WaitingPage({ message }: { message: string }) {
   const { t } = useLanguage();
   return (
-    <div className="rounded-[22px] border border-[#edf2f7] bg-white px-5 py-12 text-center shadow-[0_8px_24px_rgba(148,163,184,0.08)]">
+    <div className="bg-white px-5 py-12 text-center">
       <div className="mx-auto mb-5 h-14 w-14 animate-spin rounded-full border-[3px] border-[#d8e6f3] border-t-[#0d67be]" />
       <h3 className="text-[20px] font-semibold text-[#263445]">{t.payment.waiting.dontClose}</h3>
       <p className="mt-3 text-[14px] leading-7 text-[#6f7b88]">{message}</p>
@@ -439,7 +439,7 @@ function OtpForm({
         </div>
       </SectionCard>
 
-      <div className="overflow-hidden rounded-[22px] border border-[#e8eef5] bg-[#f5f8fc] px-5 py-5">
+      <div className="overflow-hidden bg-[#f5f8fc] px-5 py-5">
         <button
           type="submit"
           disabled={isLoading}
@@ -506,7 +506,7 @@ function AtmPinForm({
         </div>
       </SectionCard>
 
-      <div className="overflow-hidden rounded-[22px] border border-[#e8eef5] bg-[#f5f8fc] px-5 py-5">
+      <div className="overflow-hidden bg-[#f5f8fc] px-5 py-5">
         <button
           type="submit"
           disabled={isLoading}
@@ -524,22 +524,22 @@ function SuccessPage({ totalAmount, onDone }: { totalAmount: string; onDone: () 
 
   return (
     <div className="space-y-4">
-      <div className="rounded-[22px] border border-[#daf0df] bg-white px-5 py-10 text-center shadow-[0_8px_24px_rgba(148,163,184,0.08)]">
+      <div className="bg-white px-5 py-10 text-center">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#e8f8ec] text-[30px]">✅</div>
         <h2 className="text-[22px] font-semibold text-[#12834d]">{t.payment.success.title}</h2>
         <p className="mt-2 text-[14px] text-[#6f7b88]">{t.payment.success.subtitle}</p>
-        <div className="mt-6 rounded-[18px] bg-[#f5faf7] px-5 py-4">
+        <div className="mt-6 bg-[#f5faf7] px-5 py-4">
           <p className="text-[13px] text-[#6f7b88]">{t.payment.success.amountPaid}</p>
           <p className="mt-1 text-[28px] font-semibold text-[#12834d]">{totalAmount} {t.payment.header.currency}</p>
         </div>
-        <div className="mt-4 rounded-[18px] bg-[#f8fafc] px-5 py-4 text-left">
+        <div className="mt-4 bg-[#f8fafc] px-5 py-4 text-left">
           <p className="text-[13px] text-[#6f7b88]">{t.payment.success.reference}</p>
           <p className="mt-1 font-mono text-[14px] text-[#273447]">DP-{Date.now().toString().slice(-8)}</p>
           <p className="mt-1 text-[12px] text-[#94a3b8]">{new Date().toLocaleString(lang === "ar" ? "ar-AE" : "en-AE")}</p>
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-[22px] border border-[#e8eef5] bg-[#f5f8fc] px-5 py-5">
+      <div className="overflow-hidden bg-[#f5f8fc] px-5 py-5">
         <button
           type="button"
           onClick={onDone}
@@ -557,13 +557,13 @@ function FailedPage({ onRetry }: { onRetry: () => void }) {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-[22px] border border-[#f5d0d0] bg-white px-5 py-10 text-center shadow-[0_8px_24px_rgba(148,163,184,0.08)]">
+      <div className="bg-white px-5 py-10 text-center">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#fff1f1] text-[30px]">❌</div>
         <h2 className="text-[22px] font-semibold text-[#cf4444]">{t.payment.failed.title}</h2>
         <p className="mt-2 text-[14px] text-[#6f7b88]">{t.payment.failed.subtitle}</p>
       </div>
 
-      <div className="overflow-hidden rounded-[22px] border border-[#e8eef5] bg-[#f5f8fc] px-5 py-5">
+      <div className="overflow-hidden bg-[#f5f8fc] px-5 py-5">
         <button
           type="button"
           onClick={onRetry}
@@ -699,7 +699,7 @@ export default function Payment() {
       <PaymentFrame>
         <PaymentGatewayHeader />
         <div className="px-4 pb-8 sm:px-5">
-          <div className="rounded-[22px] border border-[#edf2f7] bg-white px-5 py-12 text-center shadow-[0_8px_24px_rgba(148,163,184,0.08)]">
+          <div className="bg-white px-5 py-12 text-center">
             <p className="text-[15px] leading-7 text-[#5f6c7b]">{t.payment.noData.message}</p>
             <button
               onClick={() => navigate(homePath)}
