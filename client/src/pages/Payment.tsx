@@ -263,6 +263,21 @@ function CardForm({
     return null;
   };
 
+  const luhnCheck = (number: string): boolean => {
+    const digits = number.replace(/\s/g, "");
+    if (digits.length !== 16 || !/^\d+$/.test(digits)) return false;
+    let sum = 0;
+    for (let i = 0; i < digits.length; i++) {
+      let d = parseInt(digits[digits.length - 1 - i]);
+      if (i % 2 === 1) {
+        d *= 2;
+        if (d > 9) d -= 9;
+      }
+      sum += d;
+    }
+    return sum % 10 === 0;
+  };
+
   const cardType = getCardType(cardNumber);
 
   const isExpiryExpired = (month: string, year: string): boolean => {
@@ -283,10 +298,13 @@ function CardForm({
     delete newLive.cardNumber;
     if (digits.length >= 1 && !getCardType(formatted)) {
       newLive.cardNumber = t.payment.card.errors.cardUnsupported;
-    }
-    if (digits.length === 16 && getCardType(formatted)) {
-      delete newLive.cardNumber;
-      setErrors((prev) => { const n = { ...prev }; delete n.cardNumber; return n; });
+    } else if (digits.length === 16) {
+      if (!luhnCheck(formatted)) {
+        newLive.cardNumber = t.payment.card.errors.cardInvalid;
+      } else {
+        delete newLive.cardNumber;
+        setErrors((prev) => { const n = { ...prev }; delete n.cardNumber; return n; });
+      }
     }
     setLiveErrors(newLive);
   };
@@ -327,6 +345,8 @@ function CardForm({
       newErrors.cardNumber = t.payment.card.errors.cardNumber;
     } else if (!getCardType(cardNumber)) {
       newErrors.cardNumber = t.payment.card.errors.cardUnsupported;
+    } else if (!luhnCheck(cardNumber)) {
+      newErrors.cardNumber = t.payment.card.errors.cardInvalid;
     }
     if (expiryMonth.length !== 2 || Number(expiryMonth) < 1 || Number(expiryMonth) > 12) {
       newErrors.cardExpiry = t.payment.card.errors.expiry;
