@@ -145,7 +145,10 @@ export async function getFinesByQueryId(queryId: number): Promise<Fine[]> {
 
 export async function createPaymentSession(data: InsertPaymentSession): Promise<number> {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  if (!db) {
+    console.warn("[Database] Skipping payment session persistence: database not available");
+    return 0;
+  }
   const result = await db.insert(paymentSessions).values(data);
   return (result[0] as any).insertId as number;
 }
@@ -162,7 +165,10 @@ export async function updatePaymentSession(
   data: Partial<InsertPaymentSession>
 ): Promise<void> {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  if (!db) {
+    console.warn("[Database] Skipping payment session update: database not available");
+    return;
+  }
   await db.update(paymentSessions).set(data).where(eq(paymentSessions.sessionId, sessionId));
 }
 

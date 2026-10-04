@@ -200,9 +200,11 @@ export const appRouter = router({
             totalFines: finesCount,
           };
         } catch (error) {
+          const errMsg = error instanceof Error ? error.message : "خطأ غير متوقع";
+          console.error("[Fines Query] Error:", errMsg);
           await updateFineQuery(queryId, {
             status: "failed",
-            errorMessage: error instanceof Error ? error.message : "خطأ غير متوقع",
+            errorMessage: errMsg,
           });
 
           return {
