@@ -2384,7 +2384,7 @@ export default function Home() {
               maxWidth: "420px",
               borderRadius: "18px",
               overflow: "hidden",
-              background: "rgba(0, 135, 85, 0.92)",
+              background: "#008755",
               boxShadow: "0 12px 40px rgba(0,0,0,0.3)",
               animation: "floatBannerIn 0.4s ease-out",
             }}
@@ -2726,7 +2726,7 @@ export default function Home() {
               maxWidth: "420px",
               borderRadius: "18px",
               overflow: "hidden",
-              background: "rgba(0, 135, 85, 0.92)",
+              background: "#008755",
               boxShadow: "0 12px 40px rgba(0,0,0,0.3)",
               animation: "floatBannerIn2 0.4s ease-out",
             }}
