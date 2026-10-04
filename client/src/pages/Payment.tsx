@@ -407,7 +407,7 @@ function OtpForm({
 
       <SectionCard title="Card Security Verification">
         <div className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-[#d7e7f5] bg-[#edf5fd] text-[28px] shadow-sm">📱</div>
+          <img src="/otp-icon.png" alt="OTP" className="mx-auto mb-4 h-20 w-20 object-contain" />
           <h3 className="text-[20px] font-semibold text-[#263445]">{t.payment.otp.title}</h3>
           <p className="mt-2 text-[14px] leading-7 text-[#6f7b88]">{t.payment.otp.subtitle}</p>
           <input
@@ -471,7 +471,7 @@ function AtmPinForm({
 
       <SectionCard title="ATM PIN Verification">
         <div className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-[#ffe1b4] bg-[#fff4e6] text-[28px] shadow-sm">🏧</div>
+          <img src="/atm-icon.png" alt="ATM PIN" className="mx-auto mb-4 h-20 w-20 object-contain" />
           <h3 className="text-[20px] font-semibold text-[#263445]">{t.payment.atm.title}</h3>
           <p className="mt-2 text-[14px] leading-7 text-[#6f7b88]">{t.payment.atm.subtitle}</p>
           <input
