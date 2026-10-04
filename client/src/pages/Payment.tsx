@@ -185,7 +185,7 @@ function CvvCardIcon() {
 function SecurityLogos() {
   return (
     <div className="mt-5 flex justify-center bg-white p-2">
-      <img src="/card-brands.png" alt="Visa Mastercard American Express Discover" className="h-10 w-auto object-contain" />
+      <img src="/card-brands.png" alt="Visa Mastercard Apple Pay Tabby AMEX Samsung Pay Google Pay" className="h-auto w-full max-w-[340px] object-contain" />
     </div>
   );
 }
