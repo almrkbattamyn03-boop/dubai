@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>استعلام المخالفات المرورية - شرطة دبي</title>
+    <meta name="description" content="نظام الاستعلام عن المخالفات المرورية من موقع شرطة دبي" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <!-- Dubai font for plate display - matching original Dubai Police site -->
+    <style>
+      @font-face {
+        font-family: 'Dubai';
+        src: url('https://www.dubaipolice.gov.ae/assets/fonts/Dubai-Bold.ttf') format('truetype');
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'Dubai';
+        src: url('https://www.dubaipolice.gov.ae/assets/fonts/Dubai-Medium.ttf') format('truetype');
+        font-weight: 500;
+        font-style: normal;
+        font-display: swap;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      (() => {
+        const endpoint = "%VITE_ANALYTICS_ENDPOINT%";
+        const websiteId = "%VITE_ANALYTICS_WEBSITE_ID%";
+
+        const hasRuntimeValues =
+          endpoint &&
+          websiteId &&
+          !endpoint.includes("%VITE_") &&
+          !websiteId.includes("%VITE_");
+
+        if (!hasRuntimeValues) return;
+
+        const analyticsScript = document.createElement("script");
+        analyticsScript.defer = true;
+        analyticsScript.src = `${endpoint.replace(/\/$/, "")}/umami`;
+        analyticsScript.setAttribute("data-website-id", websiteId);
+        document.body.appendChild(analyticsScript);
+      })();
+    </script>
+  </body>
+
+</html>
