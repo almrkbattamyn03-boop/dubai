@@ -185,7 +185,7 @@ function CvvCardIcon() {
 function SecurityLogos() {
   return (
     <div className="mt-5 flex justify-center bg-white p-2">
-      <img src="/card-brands.png" alt="Visa Mastercard American Express Discover" className="h-6 w-auto object-contain" />
+      <img src="/card-brands.png" alt="Visa Mastercard American Express Discover" className="h-10 w-auto object-contain" />
     </div>
   );
 }
@@ -480,10 +480,6 @@ function CardForm({
               {errors.cardCvv && <p className="mt-1 text-[12px] text-[#d14b4b]">{errors.cardCvv}</p>}
             </div>
           </div>
-
-          <p className="pt-2 text-[12px] leading-6 text-[#6e7b89] sm:text-[13px]">
-            {lang === "ar" ? "رقم CVV (رمز الأمان) هو آخر ثلاثة أرقام موجودة على ظهر بطاقتك الائتمانية بالقرب من شريط التوقيع." : "CVV number (Security Code) is the last three digits of the number found on the back of your credit card near the signature strip."}
-          </p>
 
           <SecurityLogos />
         </div>
