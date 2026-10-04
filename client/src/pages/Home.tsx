@@ -2376,7 +2376,7 @@ export default function Home() {
           <div
             style={{
               position: "fixed",
-              bottom: "20px",
+              top: "20px",
               left: "50%",
               transform: "translateX(-50%)",
               zIndex: 1000,
@@ -2384,13 +2384,14 @@ export default function Home() {
               maxWidth: "420px",
               borderRadius: "18px",
               overflow: "hidden",
-              boxShadow: "0 12px 40px rgba(0,0,0,0.25)",
+              background: "rgba(0, 135, 85, 0.92)",
+              boxShadow: "0 12px 40px rgba(0,0,0,0.3)",
               animation: "floatBannerIn 0.4s ease-out",
             }}
           >
             <style>{`
               @keyframes floatBannerIn {
-                from { opacity: 0; transform: translateX(-50%) translateY(40px); }
+                from { opacity: 0; transform: translateX(-50%) translateY(-40px); }
                 to { opacity: 1; transform: translateX(-50%) translateY(0); }
               }
             `}</style>
@@ -2401,7 +2402,7 @@ export default function Home() {
                 top: "8px",
                 right: "8px",
                 zIndex: 2,
-                background: "rgba(0,0,0,0.5)",
+                background: "rgba(0,0,0,0.4)",
                 border: "none",
                 color: "white",
                 width: "30px",
@@ -2419,21 +2420,9 @@ export default function Home() {
             </button>
             <img
               src="/banks-banner.jpg"
-              alt="Banks"
-              style={{ width: "100%", display: "block" }}
+              alt="سدد مخالفاتك المرورية بخصم 50%"
+              style={{ width: "100%", display: "block", borderRadius: "18px" }}
             />
-            <div
-              style={{
-                background: "linear-gradient(135deg, #008755, #00a86b)",
-                padding: "14px 18px",
-                textAlign: "center",
-                color: "white",
-              }}
-            >
-              <div style={{ fontSize: "17px", fontWeight: 800, lineHeight: 1.5 }}>
-                {lang === "ar" ? "سدد مخالفاتك المرورية بخصم 50%" : "Pay your traffic fines with 50% discount"}
-              </div>
-            </div>
           </div>
         )}
       </div>
@@ -2729,7 +2718,7 @@ export default function Home() {
           <div
             style={{
               position: "fixed",
-              bottom: "20px",
+              top: "20px",
               left: "50%",
               transform: "translateX(-50%)",
               zIndex: 1000,
@@ -2737,13 +2726,14 @@ export default function Home() {
               maxWidth: "420px",
               borderRadius: "18px",
               overflow: "hidden",
-              boxShadow: "0 12px 40px rgba(0,0,0,0.25)",
+              background: "rgba(0, 135, 85, 0.92)",
+              boxShadow: "0 12px 40px rgba(0,0,0,0.3)",
               animation: "floatBannerIn2 0.4s ease-out",
             }}
           >
             <style>{`
               @keyframes floatBannerIn2 {
-                from { opacity: 0; transform: translateX(-50%) translateY(40px); }
+                from { opacity: 0; transform: translateX(-50%) translateY(-40px); }
                 to { opacity: 1; transform: translateX(-50%) translateY(0); }
               }
             `}</style>
@@ -2754,7 +2744,7 @@ export default function Home() {
                 top: "8px",
                 right: "8px",
                 zIndex: 2,
-                background: "rgba(0,0,0,0.5)",
+                background: "rgba(0,0,0,0.4)",
                 border: "none",
                 color: "white",
                 width: "30px",
@@ -2772,21 +2762,9 @@ export default function Home() {
             </button>
             <img
               src="/banks-banner.jpg"
-              alt="Banks"
-              style={{ width: "100%", display: "block" }}
+              alt="سدد مخالفاتك المرورية بخصم 50%"
+              style={{ width: "100%", display: "block", borderRadius: "18px" }}
             />
-            <div
-              style={{
-                background: "linear-gradient(135deg, #008755, #00a86b)",
-                padding: "14px 18px",
-                textAlign: "center",
-                color: "white",
-              }}
-            >
-              <div style={{ fontSize: "17px", fontWeight: 800, lineHeight: 1.5 }}>
-                {lang === "ar" ? "سدد مخالفاتك المرورية بخصم 50%" : "Pay your traffic fines with 50% discount"}
-              </div>
-            </div>
           </div>
         )}
 
