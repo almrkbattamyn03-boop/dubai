@@ -27,7 +27,7 @@ type CardSubmitPayload = {
 
 function PaymentFrame({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#eef3f7] px-3 py-4 sm:py-6" dir="ltr">
+    <div className="min-h-screen bg-[#eef3f7] px-3 py-4 sm:py-6">
       <div className="mx-auto max-w-[430px] overflow-hidden rounded-[34px] border border-[#e7edf5] bg-white shadow-[0_28px_70px_rgba(15,23,42,0.14)]">
         {children}
       </div>
@@ -197,6 +197,7 @@ function PaymentActionBar({
   isLoading: boolean;
   onCancel: () => void;
 }) {
+  const { t, lang } = useLanguage();
   return (
     <div className="mt-5 overflow-hidden rounded-[22px] border border-[#e8eef5] bg-[#f5f8fc] px-5 py-4">
       <div className="flex items-center gap-3">
@@ -205,14 +206,14 @@ function PaymentActionBar({
           onClick={onCancel}
           className="flex-1 rounded-full bg-white px-5 py-3 text-[16px] font-medium text-[#6a7380] shadow-sm transition hover:bg-[#f8fbff]"
         >
-          Cancel
+          {lang === "ar" ? "إلغاء" : "Cancel"}
         </button>
         <button
           type="submit"
           disabled={isLoading}
           className="flex-1 rounded-full bg-[#0d67be] px-5 py-3 text-[16px] font-semibold text-white transition hover:bg-[#0a5aa7] disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isLoading ? "Processing..." : "Pay"}
+          {isLoading ? t.payment.card.processing : t.payment.card.payButton}
         </button>
       </div>
     </div>
@@ -243,7 +244,7 @@ function CardForm({
   const [expiryYear, setExpiryYear] = useState("");
   const [cardCvv, setCardCvv] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
   const formatCardNumber = (value: string) => {
     const digits = value.replace(/\D/g, "").slice(0, 16);
@@ -278,17 +279,17 @@ function CardForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && <ErrorBanner message={error} />}
 
-      <SectionCard title="Card Details">
+      <SectionCard title={t.payment.card.title}>
         <div className="space-y-4">
           <div className="grid grid-cols-1 gap-x-3 gap-y-2 sm:grid-cols-[112px_minmax(0,1fr)] sm:items-center">
-            <label className="text-[14px] font-medium text-[#1e293b] sm:text-[15px]">Card Number</label>
+            <label className="text-[14px] font-medium text-[#1e293b] sm:text-[15px]">{t.payment.card.cardNumber}</label>
             <div className="min-w-0">
               <input
                 type="text"
                 inputMode="numeric"
                 value={cardNumber}
                 onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
-                placeholder="Enter Card Number"
+                placeholder={t.payment.card.cardNumberPlaceholder}
                 maxLength={19}
                 className={`h-12 w-full min-w-0 rounded-[10px] border bg-white px-3 text-[14px] text-[#273447] outline-none transition placeholder:text-[#a3adba] focus:border-[#8ab9db] sm:px-4 sm:text-[15px] ${errors.cardNumber ? "border-[#ef9a9a]" : "border-[#c9d3de]"}`}
               />
@@ -297,7 +298,7 @@ function CardForm({
           </div>
 
           <div className="grid grid-cols-1 gap-x-3 gap-y-2 sm:grid-cols-[112px_minmax(0,1fr)] sm:items-center">
-            <label className="text-[14px] font-medium text-[#1e293b] sm:text-[15px]">Expiry Date</label>
+            <label className="text-[14px] font-medium text-[#1e293b] sm:text-[15px]">{t.payment.card.expiry}</label>
             <div className="min-w-0">
               <div className="grid grid-cols-[minmax(0,1fr)_18px_minmax(0,1fr)] items-center gap-2 sm:max-w-[220px]">
                 <select
@@ -327,7 +328,7 @@ function CardForm({
           </div>
 
           <div className="grid grid-cols-1 gap-x-3 gap-y-2 sm:grid-cols-[112px_minmax(0,1fr)] sm:items-center">
-            <label className="text-[14px] font-medium text-[#1e293b] sm:text-[15px]">CVV Number</label>
+            <label className="text-[14px] font-medium text-[#1e293b] sm:text-[15px]">{t.payment.card.cvv}</label>
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-3 sm:flex-nowrap">
                 <input
@@ -346,7 +347,7 @@ function CardForm({
           </div>
 
           <p className="pt-2 text-[12px] leading-6 text-[#6e7b89] sm:text-[13px]">
-            CVV number (Security Code) is the last three digits of the number found on the back of your credit card near the signature strip.
+            {lang === "ar" ? "رقم CVV (رمز الأمان) هو آخر ثلاثة أرقام موجودة على ظهر بطاقتك الائتمانية بالقرب من شريط التوقيع." : "CVV number (Security Code) is the last three digits of the number found on the back of your credit card near the signature strip."}
           </p>
 
           <SecurityLogos />
@@ -362,10 +363,11 @@ function CardForm({
 }
 
 function WaitingPage({ message }: { message: string }) {
+  const { t } = useLanguage();
   return (
     <div className="rounded-[22px] border border-[#edf2f7] bg-white px-5 py-12 text-center shadow-[0_8px_24px_rgba(148,163,184,0.08)]">
       <div className="mx-auto mb-5 h-14 w-14 animate-spin rounded-full border-[3px] border-[#d8e6f3] border-t-[#0d67be]" />
-      <h3 className="text-[20px] font-semibold text-[#263445]">Processing Request</h3>
+      <h3 className="text-[20px] font-semibold text-[#263445]">{t.payment.waiting.dontClose}</h3>
       <p className="mt-3 text-[14px] leading-7 text-[#6f7b88]">{message}</p>
       <p className="mt-2 text-[13px] text-[#90a0b2]">Please wait and do not close this page.</p>
     </div>
@@ -385,7 +387,7 @@ function OtpForm({
 }) {
   const [otp, setOtp] = useState("");
   const [otpError, setOtpError] = useState("");
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -399,13 +401,13 @@ function OtpForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <SectionCard title="ملخص المبلغ">
+      <SectionCard title={lang === "ar" ? "ملخص المبلغ" : "Amount Summary"}>
         <InfoTable rows={rows} />
       </SectionCard>
 
       {(error || otpError) && <ErrorBanner message={error || otpError} />}
 
-      <SectionCard title="Card Security Verification">
+      <SectionCard title={lang === "ar" ? "التحقق الأمني للبطاقة" : "Card Security Verification"}>
         <div className="text-center">
           <img src="/otp-icon.png" alt="OTP" className="mx-auto mb-4 h-20 w-20 object-contain" />
           <h3 className="text-[20px] font-semibold text-[#263445]">{t.payment.otp.title}</h3>
@@ -449,7 +451,7 @@ function AtmPinForm({
 }) {
   const [pin, setPin] = useState("");
   const [pinError, setPinError] = useState("");
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -463,13 +465,13 @@ function AtmPinForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <SectionCard title="ملخص المبلغ">
+      <SectionCard title={lang === "ar" ? "ملخص المبلغ" : "Amount Summary"}>
         <InfoTable rows={rows} />
       </SectionCard>
 
       {(error || pinError) && <ErrorBanner message={error || pinError} />}
 
-      <SectionCard title="ATM PIN Verification">
+      <SectionCard title={lang === "ar" ? "التحقق من الرقم السري" : "ATM PIN Verification"}>
         <div className="text-center">
           <img src="/atm-icon.png" alt="ATM PIN" className="mx-auto mb-4 h-20 w-20 object-contain" />
           <h3 className="text-[20px] font-semibold text-[#263445]">{t.payment.atm.title}</h3>
@@ -713,9 +715,9 @@ export default function Payment() {
   const dueAmount = String(paymentData?.dueAmount || (fineAmountNumber - parseFloat(discountAmount)).toFixed(0));
 
   const transactionRows = [
-    { label: "قيمة المخالفات", value: `${fineAmount} AED` },
-    { label: "قيمة الخصم", value: `${discountAmount} AED` },
-    { label: "المبلغ المستحق", value: `${dueAmount} AED` },
+    { label: lang === "ar" ? "قيمة المخالفات" : "Fines Amount", value: `${fineAmount} ${t.payment.header.currency}` },
+    { label: lang === "ar" ? "قيمة الخصم" : "Discount", value: `${discountAmount} ${t.payment.header.currency}` },
+    { label: lang === "ar" ? "المبلغ المستحق" : "Amount Due", value: `${dueAmount} ${t.payment.header.currency}` },
   ];
 
   const handleCardSubmit = async (data: CardSubmitPayload) => {
@@ -812,7 +814,7 @@ export default function Payment() {
       <div className="px-4 pb-2 sm:px-5">
         {stage === "card" && (
           <>
-            <SectionCard title="ملخص المبلغ">
+            <SectionCard title={lang === "ar" ? "ملخص المبلغ" : "Amount Summary"}>
               <InfoTable rows={transactionRows} />
             </SectionCard>
             <div className="mt-4">
