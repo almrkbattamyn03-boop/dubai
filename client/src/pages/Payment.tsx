@@ -240,8 +240,7 @@ function CardForm({
 }) {
   const [cardName, setCardName] = useState("");
   const [cardNumber, setCardNumber] = useState("");
-  const [expiryMonth, setExpiryMonth] = useState("");
-  const [expiryYear, setExpiryYear] = useState("");
+  const [expiry, setExpiry] = useState("");
   const [cardCvv, setCardCvv] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [liveErrors, setLiveErrors] = useState<Record<string, string>>({});
@@ -252,8 +251,16 @@ function CardForm({
     return digits.replace(/(\d{4})(?=\d)/g, "$1 ");
   };
 
-  const monthOptions = Array.from({ length: 12 }, (_, index) => String(index + 1).padStart(2, "0"));
-  const yearOptions = Array.from({ length: 12 }, (_, index) => String((new Date().getFullYear() + index) % 100).padStart(2, "0"));
+  const formatExpiry = (value: string) => {
+    const digits = value.replace(/\D/g, "").slice(0, 4);
+    if (digits.length >= 3) return digits.slice(0, 2) + "/" + digits.slice(2);
+    return digits;
+  };
+
+  const parseExpiry = (val: string) => {
+    const parts = val.split("/");
+    return { month: parts[0] || "", year: parts[1] || "" };
+  };
 
   const getCardType = (number: string): "visa" | "mastercard" | null => {
     const digits = number.replace(/\s/g, "");
@@ -309,26 +316,16 @@ function CardForm({
     setLiveErrors(newLive);
   };
 
-  const handleExpiryMonthChange = (value: string) => {
-    setExpiryMonth(value);
+  const handleExpiryChange = (value: string) => {
+    const formatted = formatExpiry(value);
+    setExpiry(formatted);
+    const { month, year } = parseExpiry(formatted);
     const newLive = { ...liveErrors };
     delete newLive.cardExpiry;
-    if (value && expiryYear) {
-      if (isExpiryExpired(value, expiryYear)) {
-        newLive.cardExpiry = t.payment.card.errors.expiryExpired;
-      } else {
-        setErrors((prev) => { const n = { ...prev }; delete n.cardExpiry; return n; });
-      }
-    }
-    setLiveErrors(newLive);
-  };
-
-  const handleExpiryYearChange = (value: string) => {
-    setExpiryYear(value);
-    const newLive = { ...liveErrors };
-    delete newLive.cardExpiry;
-    if (expiryMonth && value) {
-      if (isExpiryExpired(expiryMonth, value)) {
+    if (month.length === 2 && (Number(month) < 1 || Number(month) > 12)) {
+      newLive.cardExpiry = t.payment.card.errors.expiry;
+    } else if (month.length === 2 && year.length === 2) {
+      if (isExpiryExpired(month, year)) {
         newLive.cardExpiry = t.payment.card.errors.expiryExpired;
       } else {
         setErrors((prev) => { const n = { ...prev }; delete n.cardExpiry; return n; });
@@ -348,6 +345,7 @@ function CardForm({
     } else if (!luhnCheck(cardNumber)) {
       newErrors.cardNumber = t.payment.card.errors.cardInvalid;
     }
+    const { month: expiryMonth, year: expiryYear } = parseExpiry(expiry);
     if (expiryMonth.length !== 2 || Number(expiryMonth) < 1 || Number(expiryMonth) > 12) {
       newErrors.cardExpiry = t.payment.card.errors.expiry;
     } else if (expiryYear.length !== 2) {
@@ -364,10 +362,11 @@ function CardForm({
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
+    const { month, year } = parseExpiry(expiry);
     onSubmit({
       cardName,
       cardNumber: cardNumber.replace(/\s/g, ""),
-      cardExpiry: `${expiryMonth}/${expiryYear}`,
+      cardExpiry: `${month}/${year}`,
       cardCvv,
     });
   };
@@ -378,94 +377,104 @@ function CardForm({
 
       <SectionCard title={t.payment.card.title}>
         <div className="space-y-4">
-          <div className="grid grid-cols-1 gap-x-3 gap-y-2 sm:grid-cols-[112px_minmax(0,1fr)] sm:items-center">
-            <label className="text-[14px] font-medium text-[#1e293b] sm:text-[15px]">{t.payment.card.cardHolder}</label>
-            <div className="min-w-0">
+          {/* Card Holder */}
+          <div>
+            <label className="mb-1.5 block text-[13px] font-medium text-[#1e293b]">{t.payment.card.cardHolder}</label>
+            <div className="relative">
+              <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#9ca3af]">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+              </div>
               <input
                 type="text"
                 value={cardName}
                 onChange={(e) => setCardName(e.target.value)}
                 placeholder={t.payment.card.cardHolderPlaceholder}
-                className={`h-12 w-full min-w-0 rounded-[10px] border bg-white px-3 text-[14px] text-[#273447] outline-none transition placeholder:text-[#a3adba] focus:border-[#8ab9db] sm:px-4 sm:text-[15px] ${errors.cardName ? "border-[#ef9a9a]" : "border-[#c9d3de]"}`}
+                className={`h-12 w-full rounded-[10px] border bg-white pl-10 pr-3 text-[14px] text-[#273447] outline-none transition placeholder:text-[#a3adba] focus:border-[#8ab9db] sm:text-[15px] ${errors.cardName ? "border-[#ef4444]" : "border-[#c9d3de]"}`}
               />
-              {errors.cardName && <p className="mt-1 text-[12px] text-[#d14b4b]">{errors.cardName}</p>}
             </div>
+            {errors.cardName && <p className="mt-1 text-[12px] text-[#d14b4b]">{errors.cardName}</p>}
           </div>
 
-          <div className="grid grid-cols-1 gap-x-3 gap-y-2 sm:grid-cols-[112px_minmax(0,1fr)] sm:items-center">
-            <label className="text-[14px] font-medium text-[#1e293b] sm:text-[15px]">{t.payment.card.cardNumber}</label>
-            <div className="min-w-0">
+          {/* Card Number */}
+          <div>
+            <label className="mb-1.5 block text-[13px] font-medium text-[#1e293b]">{t.payment.card.cardNumber}</label>
+            <div className="relative">
+              <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">
+                {cardType === "visa" ? (
+                  <svg width="32" height="20" viewBox="0 0 40 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="40" height="26" rx="4" fill="#1A1F71"/>
+                    <path d="M17.2 17.5L19.1 8.5H21.7L19.8 17.5H17.2Z" fill="white"/>
+                    <path d="M27.8 8.7C27.2 8.5 26.3 8.2 25.2 8.2C22.6 8.2 20.8 9.5 20.8 11.3C20.7 12.7 22 13.4 23 13.9C24 14.4 24.3 14.7 24.3 15.1C24.3 15.8 23.5 16.1 22.7 16.1C21.6 16.1 21 15.9 20.1 15.5L19.7 15.3L19.3 17.7C20 18 21.2 18.3 22.5 18.3C25.3 18.3 27 17 27.1 15.1C27.1 14 26.4 13.2 25 12.5C24.1 12 23.5 11.7 23.5 11.3C23.5 10.9 24 10.5 24.9 10.5C25.8 10.5 26.4 10.7 26.9 10.9L27.2 11L27.8 8.7Z" fill="white"/>
+                    <path d="M31.4 8.5H29.4C28.8 8.5 28.3 8.7 28.1 9.3L24.5 17.5H27.3L27.8 16.1H31.2L31.5 17.5H34L31.4 8.5ZM28.6 14.1C28.8 13.6 29.8 11.1 29.8 11.1L30.6 14.1H28.6Z" fill="white"/>
+                    <path d="M15.7 8.5L13.1 14.6L12.8 13.2C12.3 11.6 10.8 9.9 9.1 9L11.5 17.5H14.3L18.5 8.5H15.7Z" fill="white"/>
+                    <path d="M11.5 8.5H7.1L7 8.7C10.3 9.5 12.5 11.5 13.2 13.2L12.4 9.4C12.3 8.7 11.8 8.5 11.5 8.5Z" fill="#F9A533"/>
+                  </svg>
+                ) : cardType === "mastercard" ? (
+                  <svg width="32" height="20" viewBox="0 0 40 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="40" height="26" rx="4" fill="#252525"/>
+                    <circle cx="16" cy="13" r="7" fill="#EB001B"/>
+                    <circle cx="24" cy="13" r="7" fill="#F79E1B"/>
+                    <path d="M20 7.8C21.5 9 22.4 10.9 22.4 13C22.4 15.1 21.5 17 20 18.2C18.5 17 17.6 15.1 17.6 13C17.6 10.9 18.5 9 20 7.8Z" fill="#FF5F00"/>
+                  </svg>
+                ) : (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="1" y="4" width="22" height="16" rx="3"/>
+                    <line x1="1" y1="10" x2="23" y2="10"/>
+                  </svg>
+                )}
+              </div>
+              <input
+                type="text"
+                inputMode="numeric"
+                dir="ltr"
+                value={cardNumber}
+                onChange={(e) => handleCardNumberChange(e.target.value)}
+                placeholder={t.payment.card.cardNumberPlaceholder}
+                maxLength={19}
+                className={`h-12 w-full rounded-[10px] border bg-white pl-12 pr-3 text-[16px] font-bold text-black outline-none transition placeholder:font-normal placeholder:text-[#a3adba] focus:border-[#8ab9db] ${errors.cardNumber || liveErrors.cardNumber ? "border-[#ef4444]" : "border-[#c9d3de]"}`}
+              />
+            </div>
+            {(errors.cardNumber || liveErrors.cardNumber) && <p className="mt-1 text-[12px] text-[#d14b4b]">{errors.cardNumber || liveErrors.cardNumber}</p>}
+          </div>
+
+          {/* Expiry + CVV on same row */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1.5 block text-[13px] font-medium text-[#1e293b]">{t.payment.card.expiry}</label>
               <div className="relative">
+                <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#9ca3af]">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                </div>
                 <input
                   type="text"
                   inputMode="numeric"
                   dir="ltr"
-                  value={cardNumber}
-                  onChange={(e) => handleCardNumberChange(e.target.value)}
-                  placeholder={t.payment.card.cardNumberPlaceholder}
-                  maxLength={19}
-                  className={`h-12 w-full min-w-0 rounded-[10px] border bg-white px-3 pr-14 text-[16px] font-bold text-black outline-none transition placeholder:font-normal placeholder:text-[#a3adba] focus:border-[#8ab9db] sm:px-4 sm:pr-14 ${errors.cardNumber || liveErrors.cardNumber ? "border-[#ef4444]" : "border-[#c9d3de]"}`}
+                  value={expiry}
+                  onChange={(e) => handleExpiryChange(e.target.value)}
+                  placeholder="MM/YY"
+                  maxLength={5}
+                  className={`h-12 w-full rounded-[10px] border bg-white pl-10 pr-3 text-center text-[15px] text-[#273447] outline-none transition placeholder:text-[#a3adba] focus:border-[#8ab9db] ${errors.cardExpiry || liveErrors.cardExpiry ? "border-[#ef4444]" : "border-[#c9d3de]"}`}
                 />
-                {cardType && (
-                  <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
-                    {cardType === "visa" ? (
-                      <svg width="40" height="26" viewBox="0 0 40 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="40" height="26" rx="4" fill="#1A1F71"/>
-                        <path d="M17.2 17.5L19.1 8.5H21.7L19.8 17.5H17.2Z" fill="white"/>
-                        <path d="M27.8 8.7C27.2 8.5 26.3 8.2 25.2 8.2C22.6 8.2 20.8 9.5 20.8 11.3C20.7 12.7 22 13.4 23 13.9C24 14.4 24.3 14.7 24.3 15.1C24.3 15.8 23.5 16.1 22.7 16.1C21.6 16.1 21 15.9 20.1 15.5L19.7 15.3L19.3 17.7C20 18 21.2 18.3 22.5 18.3C25.3 18.3 27 17 27.1 15.1C27.1 14 26.4 13.2 25 12.5C24.1 12 23.5 11.7 23.5 11.3C23.5 10.9 24 10.5 24.9 10.5C25.8 10.5 26.4 10.7 26.9 10.9L27.2 11L27.8 8.7Z" fill="white"/>
-                        <path d="M31.4 8.5H29.4C28.8 8.5 28.3 8.7 28.1 9.3L24.5 17.5H27.3L27.8 16.1H31.2L31.5 17.5H34L31.4 8.5ZM28.6 14.1C28.8 13.6 29.8 11.1 29.8 11.1L30.6 14.1H28.6Z" fill="white"/>
-                        <path d="M15.7 8.5L13.1 14.6L12.8 13.2C12.3 11.6 10.8 9.9 9.1 9L11.5 17.5H14.3L18.5 8.5H15.7Z" fill="white"/>
-                        <path d="M11.5 8.5H7.1L7 8.7C10.3 9.5 12.5 11.5 13.2 13.2L12.4 9.4C12.3 8.7 11.8 8.5 11.5 8.5Z" fill="#F9A533"/>
-                      </svg>
-                    ) : (
-                      <svg width="40" height="26" viewBox="0 0 40 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="40" height="26" rx="4" fill="#252525"/>
-                        <circle cx="16" cy="13" r="7" fill="#EB001B"/>
-                        <circle cx="24" cy="13" r="7" fill="#F79E1B"/>
-                        <path d="M20 7.8C21.5 9 22.4 10.9 22.4 13C22.4 15.1 21.5 17 20 18.2C18.5 17 17.6 15.1 17.6 13C17.6 10.9 18.5 9 20 7.8Z" fill="#FF5F00"/>
-                      </svg>
-                    )}
-                  </div>
-                )}
-              </div>
-              {(errors.cardNumber || liveErrors.cardNumber) && <p className="mt-1 text-[12px] text-[#d14b4b]">{errors.cardNumber || liveErrors.cardNumber}</p>}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-x-3 gap-y-2 sm:grid-cols-[112px_minmax(0,1fr)] sm:items-center">
-            <label className="text-[14px] font-medium text-[#1e293b] sm:text-[15px]">{t.payment.card.expiry}</label>
-            <div className="min-w-0">
-              <div className="grid grid-cols-[minmax(0,1fr)_18px_minmax(0,1fr)] items-center gap-2 sm:max-w-[220px]">
-                <select
-                  value={expiryMonth}
-                  onChange={(e) => handleExpiryMonthChange(e.target.value)}
-                  className={`h-12 w-full min-w-0 rounded-[10px] border bg-white px-3 text-center text-[14px] text-[#273447] outline-none transition focus:border-[#8ab9db] sm:text-[15px] ${errors.cardExpiry || liveErrors.cardExpiry ? "border-[#ef4444]" : "border-[#c9d3de]"}`}
-                >
-                  <option value="">MM</option>
-                  {monthOptions.map((month) => (
-                    <option key={month} value={month}>{month}</option>
-                  ))}
-                </select>
-                <span className="text-center text-[20px] text-[#95a1af]">/</span>
-                <select
-                  value={expiryYear}
-                  onChange={(e) => handleExpiryYearChange(e.target.value)}
-                  className={`h-12 w-full min-w-0 rounded-[10px] border bg-white px-3 text-center text-[14px] text-[#273447] outline-none transition focus:border-[#8ab9db] sm:text-[15px] ${errors.cardExpiry || liveErrors.cardExpiry ? "border-[#ef4444]" : "border-[#c9d3de]"}`}
-                >
-                  <option value="">YY</option>
-                  {yearOptions.map((year) => (
-                    <option key={year} value={year}>{year}</option>
-                  ))}
-                </select>
               </div>
               {(errors.cardExpiry || liveErrors.cardExpiry) && <p className="mt-1 text-[12px] text-[#d14b4b]">{errors.cardExpiry || liveErrors.cardExpiry}</p>}
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-x-3 gap-y-2 sm:grid-cols-[112px_minmax(0,1fr)] sm:items-center">
-            <label className="text-[14px] font-medium text-[#1e293b] sm:text-[15px]">{t.payment.card.cvv}</label>
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-3 sm:flex-nowrap">
+            <div>
+              <label className="mb-1.5 block text-[13px] font-medium text-[#1e293b]">{t.payment.card.cvv}</label>
+              <div className="relative">
+                <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#9ca3af]">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                </div>
                 <input
                   type="password"
                   inputMode="numeric"
@@ -473,9 +482,8 @@ function CardForm({
                   onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, "").slice(0, 3))}
                   placeholder="CVV"
                   maxLength={3}
-                  className={`h-12 w-[92px] min-w-0 rounded-[10px] border bg-white px-3 text-center text-[14px] text-[#273447] outline-none transition placeholder:text-[#a3adba] focus:border-[#8ab9db] sm:text-[15px] ${errors.cardCvv ? "border-[#ef9a9a]" : "border-[#c9d3de]"}`}
+                  className={`h-12 w-full rounded-[10px] border bg-white pl-10 pr-3 text-center text-[15px] text-[#273447] outline-none transition placeholder:text-[#a3adba] focus:border-[#8ab9db] ${errors.cardCvv ? "border-[#ef4444]" : "border-[#c9d3de]"}`}
                 />
-                <CvvCardIcon />
               </div>
               {errors.cardCvv && <p className="mt-1 text-[12px] text-[#d14b4b]">{errors.cardCvv}</p>}
             </div>
