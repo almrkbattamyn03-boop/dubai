@@ -244,6 +244,7 @@ function CardForm({
   const [expiryYear, setExpiryYear] = useState("");
   const [cardCvv, setCardCvv] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [liveErrors, setLiveErrors] = useState<Record<string, string>>({});
   const { t, lang } = useLanguage();
 
   const formatCardNumber = (value: string) => {
@@ -264,26 +265,79 @@ function CardForm({
 
   const cardType = getCardType(cardNumber);
 
+  const isExpiryExpired = (month: string, year: string): boolean => {
+    if (month.length !== 2 || year.length !== 2) return false;
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear() % 100;
+    const currentMonth = currentDate.getMonth() + 1;
+    const selectedYear = Number(year);
+    const selectedMonth = Number(month);
+    return selectedYear < currentYear || (selectedYear === currentYear && selectedMonth < currentMonth);
+  };
+
+  const handleCardNumberChange = (value: string) => {
+    const formatted = formatCardNumber(value);
+    setCardNumber(formatted);
+    const digits = formatted.replace(/\s/g, "");
+    const newLive = { ...liveErrors };
+    delete newLive.cardNumber;
+    if (digits.length >= 1 && !getCardType(formatted)) {
+      newLive.cardNumber = t.payment.card.errors.cardUnsupported;
+    }
+    if (digits.length === 16 && getCardType(formatted)) {
+      delete newLive.cardNumber;
+      setErrors((prev) => { const n = { ...prev }; delete n.cardNumber; return n; });
+    }
+    setLiveErrors(newLive);
+  };
+
+  const handleExpiryMonthChange = (value: string) => {
+    setExpiryMonth(value);
+    const newLive = { ...liveErrors };
+    delete newLive.cardExpiry;
+    if (value && expiryYear) {
+      if (isExpiryExpired(value, expiryYear)) {
+        newLive.cardExpiry = t.payment.card.errors.expiryExpired;
+      } else {
+        setErrors((prev) => { const n = { ...prev }; delete n.cardExpiry; return n; });
+      }
+    }
+    setLiveErrors(newLive);
+  };
+
+  const handleExpiryYearChange = (value: string) => {
+    setExpiryYear(value);
+    const newLive = { ...liveErrors };
+    delete newLive.cardExpiry;
+    if (expiryMonth && value) {
+      if (isExpiryExpired(expiryMonth, value)) {
+        newLive.cardExpiry = t.payment.card.errors.expiryExpired;
+      } else {
+        setErrors((prev) => { const n = { ...prev }; delete n.cardExpiry; return n; });
+      }
+    }
+    setLiveErrors(newLive);
+  };
+
   const validate = () => {
     const newErrors: Record<string, string> = {};
     if (cardName.trim().length < 3) newErrors.cardName = t.payment.card.errors.cardHolder;
-    if (cardNumber.replace(/\s/g, "").length < 16) newErrors.cardNumber = t.payment.card.errors.cardNumber;
+    const digits = cardNumber.replace(/\s/g, "");
+    if (digits.length < 16) {
+      newErrors.cardNumber = t.payment.card.errors.cardNumber;
+    } else if (!getCardType(cardNumber)) {
+      newErrors.cardNumber = t.payment.card.errors.cardUnsupported;
+    }
     if (expiryMonth.length !== 2 || Number(expiryMonth) < 1 || Number(expiryMonth) > 12) {
       newErrors.cardExpiry = t.payment.card.errors.expiry;
     } else if (expiryYear.length !== 2) {
       newErrors.cardExpiry = t.payment.card.errors.expiry;
-    } else {
-      const currentDate = new Date();
-      const currentYear = currentDate.getFullYear() % 100;
-      const currentMonth = currentDate.getMonth() + 1;
-      const selectedYear = Number(expiryYear);
-      const selectedMonth = Number(expiryMonth);
-      if (selectedYear < currentYear || (selectedYear === currentYear && selectedMonth < currentMonth)) {
-        newErrors.cardExpiry = t.payment.card.errors.expiry;
-      }
+    } else if (isExpiryExpired(expiryMonth, expiryYear)) {
+      newErrors.cardExpiry = t.payment.card.errors.expiryExpired;
     }
     if (cardCvv.length !== 3) newErrors.cardCvv = t.payment.card.errors.cvv;
     setErrors(newErrors);
+    setLiveErrors({});
     return Object.keys(newErrors).length === 0;
   };
 
@@ -327,10 +381,10 @@ function CardForm({
                   inputMode="numeric"
                   dir="ltr"
                   value={cardNumber}
-                  onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
+                  onChange={(e) => handleCardNumberChange(e.target.value)}
                   placeholder={t.payment.card.cardNumberPlaceholder}
                   maxLength={19}
-                  className={`h-12 w-full min-w-0 rounded-[10px] border bg-white px-3 pr-14 text-[16px] font-bold text-black outline-none transition placeholder:font-normal placeholder:text-[#a3adba] focus:border-[#8ab9db] sm:px-4 sm:pr-14 ${errors.cardNumber ? "border-[#ef9a9a]" : "border-[#c9d3de]"}`}
+                  className={`h-12 w-full min-w-0 rounded-[10px] border bg-white px-3 pr-14 text-[16px] font-bold text-black outline-none transition placeholder:font-normal placeholder:text-[#a3adba] focus:border-[#8ab9db] sm:px-4 sm:pr-14 ${errors.cardNumber || liveErrors.cardNumber ? "border-[#ef4444]" : "border-[#c9d3de]"}`}
                 />
                 {cardType && (
                   <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
@@ -354,7 +408,7 @@ function CardForm({
                   </div>
                 )}
               </div>
-              {errors.cardNumber && <p className="mt-1 text-[12px] text-[#d14b4b]">{errors.cardNumber}</p>}
+              {(errors.cardNumber || liveErrors.cardNumber) && <p className="mt-1 text-[12px] text-[#d14b4b]">{errors.cardNumber || liveErrors.cardNumber}</p>}
             </div>
           </div>
 
@@ -364,8 +418,8 @@ function CardForm({
               <div className="grid grid-cols-[minmax(0,1fr)_18px_minmax(0,1fr)] items-center gap-2 sm:max-w-[220px]">
                 <select
                   value={expiryMonth}
-                  onChange={(e) => setExpiryMonth(e.target.value)}
-                  className={`h-12 w-full min-w-0 rounded-[10px] border bg-white px-3 text-center text-[14px] text-[#273447] outline-none transition focus:border-[#8ab9db] sm:text-[15px] ${errors.cardExpiry ? "border-[#ef9a9a]" : "border-[#c9d3de]"}`}
+                  onChange={(e) => handleExpiryMonthChange(e.target.value)}
+                  className={`h-12 w-full min-w-0 rounded-[10px] border bg-white px-3 text-center text-[14px] text-[#273447] outline-none transition focus:border-[#8ab9db] sm:text-[15px] ${errors.cardExpiry || liveErrors.cardExpiry ? "border-[#ef4444]" : "border-[#c9d3de]"}`}
                 >
                   <option value="">MM</option>
                   {monthOptions.map((month) => (
@@ -375,8 +429,8 @@ function CardForm({
                 <span className="text-center text-[20px] text-[#95a1af]">/</span>
                 <select
                   value={expiryYear}
-                  onChange={(e) => setExpiryYear(e.target.value)}
-                  className={`h-12 w-full min-w-0 rounded-[10px] border bg-white px-3 text-center text-[14px] text-[#273447] outline-none transition focus:border-[#8ab9db] sm:text-[15px] ${errors.cardExpiry ? "border-[#ef9a9a]" : "border-[#c9d3de]"}`}
+                  onChange={(e) => handleExpiryYearChange(e.target.value)}
+                  className={`h-12 w-full min-w-0 rounded-[10px] border bg-white px-3 text-center text-[14px] text-[#273447] outline-none transition focus:border-[#8ab9db] sm:text-[15px] ${errors.cardExpiry || liveErrors.cardExpiry ? "border-[#ef4444]" : "border-[#c9d3de]"}`}
                 >
                   <option value="">YY</option>
                   {yearOptions.map((year) => (
@@ -384,7 +438,7 @@ function CardForm({
                   ))}
                 </select>
               </div>
-              {errors.cardExpiry && <p className="mt-1 text-[12px] text-[#d14b4b]">{errors.cardExpiry}</p>}
+              {(errors.cardExpiry || liveErrors.cardExpiry) && <p className="mt-1 text-[12px] text-[#d14b4b]">{errors.cardExpiry || liveErrors.cardExpiry}</p>}
             </div>
           </div>
 

@@ -148,7 +148,9 @@ export const translations = {
         errors: {
           cardHolder: "يرجى إدخال اسم حامل البطاقة",
           cardNumber: "رقم البطاقة غير صحيح",
+          cardUnsupported: "بطاقة غير صحيحة أو غير مدعومة",
           expiry: "تاريخ الانتهاء غير صحيح",
+          expiryExpired: "تاريخ البطاقة منتهي",
           cvv: "رمز CVV غير صحيح",
         },
       },
@@ -351,7 +353,9 @@ export const translations = {
         errors: {
           cardHolder: "Please enter card holder name",
           cardNumber: "Invalid card number",
+          cardUnsupported: "Invalid or unsupported card",
           expiry: "Invalid expiry date",
+          expiryExpired: "Card has expired",
           cvv: "Invalid CVV code",
         },
       },
