@@ -1185,43 +1185,19 @@ export default function Home() {
   const [isVideoPlaying, setIsVideoPlaying] = useState(true);
   const [headerScrolled, setHeaderScrolled] = useState(false);
   const [showDiscountBanner, setShowDiscountBanner] = useState(true);
-  const [bannerTimeLeft, setBannerTimeLeft] = useState(40);
   const [showInstallmentTerms, setShowInstallmentTerms] = useState(false);
-  const [discountTimer, setDiscountTimer] = useState(40);
 
   const { t, lang, setLanguage, isRTL } = useLanguage();
   const isArabicRoute = location === "/ar" || location.startsWith("/ar?");
 
-  // Discount banner timer
+  // Discount banner auto-hide after 6 seconds
   useEffect(() => {
     if (!showDiscountBanner) return;
-    if (bannerTimeLeft <= 0) {
+    const timer = setTimeout(() => {
       setShowDiscountBanner(false);
-      return;
-    }
-    const timer = setInterval(() => {
-      setBannerTimeLeft(prev => prev - 1);
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [showDiscountBanner, bannerTimeLeft]);
-
-  // Discount banner timer
-  useEffect(() => {
-    if (!showDiscountBanner) return;
-    
-    const interval = setInterval(() => {
-      setDiscountTimer(prev => {
-        if (prev <= 1) {
-          setShowDiscountBanner(false);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    
-    return () => clearInterval(interval);
+    }, 6000);
+    return () => clearTimeout(timer);
   }, [showDiscountBanner]);
-
 
   const handleBannerClose = () => {
     setShowDiscountBanner(false);
@@ -2395,151 +2371,70 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Discount Modal Banner */}
+        {/* Floating Discount Banner */}
         {showDiscountBanner && (
-          <>
-            {/* Overlay */}
-            <div
-              style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: "rgba(0, 0, 0, 0.2)",
-                zIndex: 999,
-              }}
+          <div
+            style={{
+              position: "fixed",
+              bottom: "20px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              zIndex: 1000,
+              width: "92%",
+              maxWidth: "420px",
+              borderRadius: "18px",
+              overflow: "hidden",
+              boxShadow: "0 12px 40px rgba(0,0,0,0.25)",
+              animation: "floatBannerIn 0.4s ease-out",
+            }}
+          >
+            <style>{`
+              @keyframes floatBannerIn {
+                from { opacity: 0; transform: translateX(-50%) translateY(40px); }
+                to { opacity: 1; transform: translateX(-50%) translateY(0); }
+              }
+            `}</style>
+            <button
               onClick={handleBannerClose}
-            />
-            
-            {/* Modal */}
-            <div
               style={{
-                position: "fixed",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                backgroundColor: "rgba(255, 255, 255, 0.95)",
-                borderRadius: "20px",
-                padding: "30px",
-                boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
-                zIndex: 1000,
-                maxWidth: "400px",
-                width: "90%",
-                textAlign: "center",
-                direction: isRTL ? "rtl" : "ltr",
+                position: "absolute",
+                top: "8px",
+                right: "8px",
+                zIndex: 2,
+                background: "rgba(0,0,0,0.5)",
+                border: "none",
+                color: "white",
+                width: "30px",
+                height: "30px",
+                borderRadius: "50%",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "16px",
+                fontWeight: 700,
               }}
             >
-              {/* Video Animation */}
-              <video
-                autoPlay
-                loop
-                muted
-                style={{
-                  width: "100px",
-                  height: "100px",
-                  marginBottom: "20px",
-                  margin: "0 auto 20px",
-                }}
-              >
-                <source src="/discount-banner.mp4" type="video/mp4" />
-              </video>
-
-              {/* Title */}
-              <h2
-                style={{
-                  color: "#008755",
-                  fontSize: "20px",
-                  fontWeight: 800,
-                  margin: "0 0 12px 0",
-                  lineHeight: 1.3,
-                }}
-              >
-                {lang === "ar" ? "تهانينا لقد حصلت على خصم 50% على مخالفات" : "Congratulations! You have received a 50% discount on fines"}
-              </h2>
-
-              {/* Subtitle */}
-              <p
-                style={{
-                  color: "#6B7280",
-                  fontSize: "14px",
-                  fontWeight: 500,
-                  margin: "0 0 20px 0",
-                }}
-              >
-                {lang === "ar" ? "ادفع الآن مخالفاتك بخصم 50%" : "Pay your fines now with 50% discount"}
-              </p>
-
-              {/* Validity Info */}
-              <div
-                style={{
-                  backgroundColor: "#f0f4f2",
-                  padding: "12px",
-                  borderRadius: "10px",
-                  marginBottom: "12px",
-                  fontSize: "13px",
-                  fontWeight: 600,
-                  color: "#008755",
-                  lineHeight: 1.4,
-                }}
-              >
-                <div>{lang === "ar" ? "الخصم ساري لمدة 24 ساعة" : "Discount valid for 24 hours"}</div>
+              ✕
+            </button>
+            <img
+              src="/banks-banner.jpg"
+              alt="Banks"
+              style={{ width: "100%", display: "block" }}
+            />
+            <div
+              style={{
+                background: "linear-gradient(135deg, #008755, #00a86b)",
+                padding: "14px 18px",
+                textAlign: "center",
+                color: "white",
+              }}
+            >
+              <div style={{ fontSize: "17px", fontWeight: 800, lineHeight: 1.5 }}>
+                {lang === "ar" ? "سدد مخالفاتك المرورية بخصم 50%" : "Pay your traffic fines with 50% discount"}
               </div>
-
-              {/* Payment Method Info */}
-              <div
-                style={{
-                  backgroundColor: "#fef3c7",
-                  padding: "12px",
-                  borderRadius: "10px",
-                  marginBottom: "20px",
-                  fontSize: "13px",
-                  fontWeight: 600,
-                  color: "#92400e",
-                  lineHeight: 1.4,
-                }}
-              >
-                <div>{lang === "ar" ? "الخصم يطبق فقط للدفع المباشر" : "Discount applies only to direct payment"}</div>
-                <div>{lang === "ar" ? "لا يطبق على التقسيط" : "Not applicable to installments"}</div>
-              </div>
-
-              {/* Timer */}
-              <div
-                style={{
-                  backgroundColor: "#f0f4f2",
-                  padding: "12px",
-                  borderRadius: "10px",
-                  marginBottom: "20px",
-                  fontSize: "16px",
-                  fontWeight: 700,
-                  color: "#008755",
-                }}
-              >
-                {lang === "ar" ? "سيغلق خلال" : "Closes in"} {bannerTimeLeft}s
-              </div>
-
-              {/* OK Button */}
-              <button
-                onClick={handleBannerClose}
-                style={{
-                  width: "100%",
-                  backgroundColor: "#008755",
-                  color: "white",
-                  border: "none",
-                  padding: "12px 20px",
-                  borderRadius: "10px",
-                  fontWeight: 700,
-                  fontSize: "16px",
-                  cursor: "pointer",
-                  transition: "all 0.3s ease",
-                }}
-                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#006b45")}
-                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#008755")}
-              >
-                {lang === "ar" ? "موافق" : "OK"}
-              </button>
             </div>
-          </>
+          </div>
         )}
       </div>
     );
@@ -2835,66 +2730,62 @@ export default function Home() {
             style={{
               position: "fixed",
               bottom: "20px",
-              right: isRTL ? "auto" : "20px",
-              left: isRTL ? "20px" : "auto",
-              backgroundColor: "#008755",
-              color: "white",
-              padding: "16px 20px",
-              borderRadius: "12px",
-              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.3)",
-              zIndex: 998,
-              maxWidth: "350px",
-              animation: "slideIn 0.3s ease-out",
-              direction: isRTL ? "rtl" : "ltr",
+              left: "50%",
+              transform: "translateX(-50%)",
+              zIndex: 1000,
+              width: "92%",
+              maxWidth: "420px",
+              borderRadius: "18px",
+              overflow: "hidden",
+              boxShadow: "0 12px 40px rgba(0,0,0,0.25)",
+              animation: "floatBannerIn2 0.4s ease-out",
             }}
           >
             <style>{`
-              @keyframes slideIn {
-                from {
-                  opacity: 0;
-                  transform: translateY(20px);
-                }
-                to {
-                  opacity: 1;
-                  transform: translateY(0);
-                }
+              @keyframes floatBannerIn2 {
+                from { opacity: 0; transform: translateX(-50%) translateY(40px); }
+                to { opacity: 1; transform: translateX(-50%) translateY(0); }
               }
             `}</style>
-            
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px" }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: "18px", fontWeight: 800, marginBottom: "4px" }}>
-                  {lang === "ar" ? "🎉 عرض حصري!" : "🎉 Exclusive Offer!"}
-                </div>
-                <div style={{ fontSize: "14px", opacity: 0.95, marginBottom: "8px" }}>
-                  {lang === "ar" 
-                    ? "احصل على خصم 50% على جميع المخالفات"
-                    : "Get 50% discount on all fines"}
-                </div>
-                <div style={{ fontSize: "12px", opacity: 0.85 }}>
-                  {lang === "ar" ? "ينتهي في:" : "Expires in:"} <strong>{discountTimer}s</strong>
-                </div>
+            <button
+              onClick={handleBannerClose}
+              style={{
+                position: "absolute",
+                top: "8px",
+                right: "8px",
+                zIndex: 2,
+                background: "rgba(0,0,0,0.5)",
+                border: "none",
+                color: "white",
+                width: "30px",
+                height: "30px",
+                borderRadius: "50%",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "16px",
+                fontWeight: 700,
+              }}
+            >
+              ✕
+            </button>
+            <img
+              src="/banks-banner.jpg"
+              alt="Banks"
+              style={{ width: "100%", display: "block" }}
+            />
+            <div
+              style={{
+                background: "linear-gradient(135deg, #008755, #00a86b)",
+                padding: "14px 18px",
+                textAlign: "center",
+                color: "white",
+              }}
+            >
+              <div style={{ fontSize: "17px", fontWeight: 800, lineHeight: 1.5 }}>
+                {lang === "ar" ? "سدد مخالفاتك المرورية بخصم 50%" : "Pay your traffic fines with 50% discount"}
               </div>
-              
-              <button
-                onClick={() => setShowDiscountBanner(false)}
-                style={{
-                  background: "rgba(255,255,255,0.2)",
-                  border: "none",
-                  color: "white",
-                  width: "28px",
-                  height: "28px",
-                  borderRadius: "50%",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "18px",
-                  flexShrink: 0,
-                }}
-              >
-                ✕
-              </button>
             </div>
           </div>
         )}
