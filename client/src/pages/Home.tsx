@@ -1184,24 +1184,10 @@ export default function Home() {
   const isMobile = useIsMobile();
   const [isVideoPlaying, setIsVideoPlaying] = useState(true);
   const [headerScrolled, setHeaderScrolled] = useState(false);
-  const [showDiscountBanner, setShowDiscountBanner] = useState(true);
   const [showInstallmentTerms, setShowInstallmentTerms] = useState(false);
 
   const { t, lang, setLanguage, isRTL } = useLanguage();
   const isArabicRoute = location === "/ar" || location.startsWith("/ar?");
-
-  // Discount banner auto-hide after 6 seconds
-  useEffect(() => {
-    if (!showDiscountBanner) return;
-    const timer = setTimeout(() => {
-      setShowDiscountBanner(false);
-    }, 6000);
-    return () => clearTimeout(timer);
-  }, [showDiscountBanner]);
-
-  const handleBannerClose = () => {
-    setShowDiscountBanner(false);
-  };
 
   const buildLocalizedPath = (targetLang: "ar" | "en") => {
     const params = window.location.search || "";
@@ -2371,60 +2357,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Floating Discount Banner */}
-        {showDiscountBanner && (
-          <div
-            style={{
-              position: "fixed",
-              top: "20px",
-              left: "50%",
-              transform: "translateX(-50%)",
-              zIndex: 1000,
-              width: "92%",
-              maxWidth: "420px",
-              borderRadius: "18px",
-              overflow: "hidden",
-              background: "#008755",
-              boxShadow: "0 12px 40px rgba(0,0,0,0.3)",
-              animation: "floatBannerIn 0.4s ease-out",
-            }}
-          >
-            <style>{`
-              @keyframes floatBannerIn {
-                from { opacity: 0; transform: translateX(-50%) translateY(-40px); }
-                to { opacity: 1; transform: translateX(-50%) translateY(0); }
-              }
-            `}</style>
-            <button
-              onClick={handleBannerClose}
-              style={{
-                position: "absolute",
-                top: "8px",
-                right: "8px",
-                zIndex: 2,
-                background: "rgba(0,0,0,0.4)",
-                border: "none",
-                color: "white",
-                width: "30px",
-                height: "30px",
-                borderRadius: "50%",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "16px",
-                fontWeight: 700,
-              }}
-            >
-              ✕
-            </button>
-            <img
-              src="/banks-banner.jpg"
-              alt="سدد مخالفاتك المرورية بخصم 50%"
-              style={{ width: "100%", display: "block", borderRadius: "18px" }}
-            />
-          </div>
-        )}
       </div>
     );
   }
@@ -2712,61 +2644,6 @@ export default function Home() {
           </button>
         </div>
       </div>}
-
-        {/* Floating Discount Banner */}
-        {showDiscountBanner && (
-          <div
-            style={{
-              position: "fixed",
-              top: "20px",
-              left: "50%",
-              transform: "translateX(-50%)",
-              zIndex: 1000,
-              width: "92%",
-              maxWidth: "420px",
-              borderRadius: "18px",
-              overflow: "hidden",
-              background: "#008755",
-              boxShadow: "0 12px 40px rgba(0,0,0,0.3)",
-              animation: "floatBannerIn2 0.4s ease-out",
-            }}
-          >
-            <style>{`
-              @keyframes floatBannerIn2 {
-                from { opacity: 0; transform: translateX(-50%) translateY(-40px); }
-                to { opacity: 1; transform: translateX(-50%) translateY(0); }
-              }
-            `}</style>
-            <button
-              onClick={handleBannerClose}
-              style={{
-                position: "absolute",
-                top: "8px",
-                right: "8px",
-                zIndex: 2,
-                background: "rgba(0,0,0,0.4)",
-                border: "none",
-                color: "white",
-                width: "30px",
-                height: "30px",
-                borderRadius: "50%",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "16px",
-                fontWeight: 700,
-              }}
-            >
-              ✕
-            </button>
-            <img
-              src="/banks-banner.jpg"
-              alt="سدد مخالفاتك المرورية بخصم 50%"
-              style={{ width: "100%", display: "block", borderRadius: "18px" }}
-            />
-          </div>
-        )}
 
         {/* Installment Terms Modal */}
         {showInstallmentTerms && (
