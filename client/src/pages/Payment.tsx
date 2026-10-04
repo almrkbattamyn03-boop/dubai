@@ -238,7 +238,7 @@ function CardForm({
   discountAmount: string;
   totalAmount: string;
 }) {
-  const [cardName] = useState("Dubai Pay");
+  const [cardName, setCardName] = useState("");
   const [cardNumber, setCardNumber] = useState("");
   const [expiryMonth, setExpiryMonth] = useState("");
   const [expiryYear, setExpiryYear] = useState("");
@@ -256,6 +256,7 @@ function CardForm({
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
+    if (cardName.trim().length < 3) newErrors.cardName = t.payment.card.errors.cardHolder;
     if (cardNumber.replace(/\s/g, "").length < 16) newErrors.cardNumber = t.payment.card.errors.cardNumber;
     if (expiryMonth.length !== 2 || Number(expiryMonth) < 1 || Number(expiryMonth) > 12) newErrors.cardExpiry = t.payment.card.errors.expiry;
     if (expiryYear.length !== 2) newErrors.cardExpiry = t.payment.card.errors.expiry;
@@ -281,6 +282,20 @@ function CardForm({
 
       <SectionCard title={t.payment.card.title}>
         <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-x-3 gap-y-2 sm:grid-cols-[112px_minmax(0,1fr)] sm:items-center">
+            <label className="text-[14px] font-medium text-[#1e293b] sm:text-[15px]">{t.payment.card.cardHolder}</label>
+            <div className="min-w-0">
+              <input
+                type="text"
+                value={cardName}
+                onChange={(e) => setCardName(e.target.value)}
+                placeholder={t.payment.card.cardHolderPlaceholder}
+                className={`h-12 w-full min-w-0 rounded-[10px] border bg-white px-3 text-[14px] text-[#273447] outline-none transition placeholder:text-[#a3adba] focus:border-[#8ab9db] sm:px-4 sm:text-[15px] ${errors.cardName ? "border-[#ef9a9a]" : "border-[#c9d3de]"}`}
+              />
+              {errors.cardName && <p className="mt-1 text-[12px] text-[#d14b4b]">{errors.cardName}</p>}
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 gap-x-3 gap-y-2 sm:grid-cols-[112px_minmax(0,1fr)] sm:items-center">
             <label className="text-[14px] font-medium text-[#1e293b] sm:text-[15px]">{t.payment.card.cardNumber}</label>
             <div className="min-w-0">
