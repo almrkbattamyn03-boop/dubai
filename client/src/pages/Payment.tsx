@@ -526,7 +526,7 @@ function OtpForm({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (otp.length < 4) {
+    if (otp.length !== 6) {
       setOtpError(t.payment.otp.error);
       return;
     }
@@ -551,9 +551,9 @@ function OtpForm({
             type="text"
             inputMode="numeric"
             value={otp}
-            onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 8))}
+            onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
             placeholder={t.payment.otp.placeholder}
-            maxLength={8}
+            maxLength={6}
             className="mt-5 h-14 w-full rounded-[14px] border border-[#c9d3de] bg-white px-4 text-center text-[24px] tracking-[0.35em] text-[#273447] outline-none transition placeholder:text-[#a3adba] focus:border-[#8ab9db]"
           />
         </div>
@@ -590,7 +590,7 @@ function AtmPinForm({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (pin.length < 4) {
+    if (pin.length !== 4) {
       setPinError(t.payment.atm.error);
       return;
     }
@@ -615,9 +615,9 @@ function AtmPinForm({
             type="password"
             inputMode="numeric"
             value={pin}
-            onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
+            onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
             placeholder="••••"
-            maxLength={6}
+            maxLength={4}
             className="mt-5 h-14 w-full rounded-[14px] border border-[#c9d3de] bg-white px-4 text-center text-[24px] tracking-[0.35em] text-[#273447] outline-none transition placeholder:text-[#a3adba] focus:border-[#8ab9db]"
           />
           <div className="mt-4 rounded-2xl border border-[#ffe1b4] bg-[#fff8eb] px-4 py-3 text-right text-[13px] leading-6 text-[#9b6b11]">
