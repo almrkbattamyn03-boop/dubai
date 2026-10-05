@@ -502,13 +502,9 @@ function CardForm({
 }
 
 function WaitingPage({ message }: { message: string }) {
-  const { t } = useLanguage();
   return (
-    <div className="bg-white px-5 py-12 text-center">
-      <div className="mx-auto mb-5 h-14 w-14 animate-spin rounded-full border-[3px] border-[#d8e6f3] border-t-[#0d67be]" />
-      <h3 className="text-[20px] font-semibold text-[#263445]">{t.payment.waiting.dontClose}</h3>
-      <p className="mt-3 text-[14px] leading-7 text-[#6f7b88]">{message}</p>
-      <p className="mt-2 text-[13px] text-[#90a0b2]">Please wait and do not close this page.</p>
+    <div className="flex min-h-[300px] items-center justify-center bg-white">
+      <div className="h-14 w-14 animate-spin rounded-full border-[3px] border-[#d8e6f3] border-t-[#0d67be]" />
     </div>
   );
 }
